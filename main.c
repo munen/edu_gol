@@ -8,6 +8,5 @@ char *path        = NULL;
 int main(int argc, char *argv[]) {
   if(!optparse(argc, argv))
         abort();
-
   return 0;
 }
