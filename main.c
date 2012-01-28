@@ -158,6 +158,56 @@ void show_neighbour_count(world_t *world) {
   }
 }
 
+/*
+ * evolve the world into the next iteration by the following rules:
+ * 1. any live cell with fewer than two live neighbours dies, as if caused by
+ *    under-population.
+ * 2. any live cell with two or three live neighbours lives on to the next
+ *    generation.
+ * 3. any live cell with more than three live neighbours dies, as if by
+ *    overcrowding.
+ * 4. any dead cell with exactly three live neighbours becomes a live cell, as
+ *    if by reproduction.
+ */
+void next_tick(world_t *world) {
+  int i, j, tmp;
+
+  // clone current population for calculations
+  for(i = 0; i<height; i++) {
+    for(j = 0; j<width; j++) {
+      world->cells[i][j].alive_next_round = world->cells[i][j].alive;
+    }
+  }
+
+  for(i = 0; i<height; i++) {
+    for(j = 0; j<width; j++) {
+      // rule #1
+      if(neighbours(world, i, j) < 2)
+        world->cells[i][j].alive_next_round = false;
+      // rule #2
+      if((tmp == 2) || (tmp == 3)) {
+        if(world->cells[i][j].alive)
+          world->cells[i][j].alive_next_round = true;
+      };
+      // rule #3
+      if(neighbours(world, i, j) > 3) {
+        world->cells[i][j].alive_next_round = false;
+      };
+      // rule #4
+      if(neighbours(world, i, j) == 3) {
+        if(!world->cells[i][j].alive)
+          world->cells[i][j].alive_next_round = true;
+      }
+    }
+  }
+
+  // start new iteration
+  for(i = 0; i<height; i++) {
+    for(j = 0; j<width; j++) {
+      world->cells[i][j].alive = world->cells[i][j].alive_next_round;
+    }
+  }
+}
 
 int main(int argc, char *argv[]) {
   if(!optparse(argc, argv))
@@ -167,15 +217,23 @@ int main(int argc, char *argv[]) {
 
   if(path)
     read_world(&world, path);
-  else if (!create_world(&world)) {
-    printf("error creating world\n");
-    exit(-2);
-  } 
   else {
+    if(!create_world(&world)) {
+      printf("error creating world");
+      abort();
+    }
     randomize_world(&world);
   }
+
+  // game of life
   print_world(&world);
-  show_neighbour_count(&world);
+
+  //show_neighbour_count(&world);
+  while(getchar() != 'q') {
+    next_tick(&world);
+    print_world(&world);
+    //show_neighbour_count(&world);
+  }
 
   return 0;
 }
