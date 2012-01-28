@@ -49,6 +49,29 @@ void randomize_world(world_t *world) {
   }
 }
 
+void print_world(world_t *world) {
+  int i, j;
+
+  // print x-axis
+  printf("  ");
+  for(i = 0; i<width; i++)
+    printf("%i", i);
+  printf("  → x\n");
+
+  // print each line
+  for(i = 0; i<height; i++) {
+    // print y-axis
+    printf("%i ", i);
+    // print cells
+    for(j = 0; j<width; j++) {
+      printf("%s", (world->cells[i][j].alive ? "▆": " "));
+    }
+    printf("\n");
+  }
+  printf("↓\ny\n");
+}
+
+
 int main(int argc, char *argv[]) {
   if(!optparse(argc, argv))
         abort();
@@ -58,9 +81,8 @@ int main(int argc, char *argv[]) {
   if(!create_world(&world))
     printf("error creating world\n");
   else {
-    printf("created world\n");
     randomize_world(&world);
-    printf("filled world with random life\n");
+    print_world(&world);
   }
   
   return 0;
