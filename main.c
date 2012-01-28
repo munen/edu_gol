@@ -7,12 +7,12 @@
 int height, width = 0;
 char *path        = NULL;
 
-typedef struct cell_t_ {
+typedef struct {
   _Bool alive;
   _Bool alive_next_round;
 } cell_t;
 
-typedef struct world_t_ {
+typedef struct {
   cell_t **cells;
 } world_t;
 
