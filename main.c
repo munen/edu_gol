@@ -107,6 +107,58 @@ _Bool read_world(world_t *world, char *path) {
   return true;
 }
 
+// returns number of living neighbours for any given cell coordinate
+int neighbours(world_t *world, int y, int x) {
+  int count = 0;
+
+  // ... y-1 -1<x>1
+  // .*. x-1 x+1
+  // ... y+1 -1<x>1
+  //
+  // edge cases(pun intended):
+  //   y = 0, y = height
+  //   x = 0, x = width
+
+  // above
+  if(y > 0) {
+    if(x > 0)
+      count += world->cells[y-1][x-1].alive? 1 : 0;
+    count += world->cells[y-1][x].alive? 1 : 0;
+    if(x < width-1)
+      count += world->cells[y-1][x+1].alive? 1 : 0;
+  }
+
+  // below
+  if(y < height-1) {
+    if(x > 0)
+      count += world->cells[y+1][x-1].alive? 1 : 0;
+    count += world->cells[y+1][x].alive? 1 : 0;
+    if(x < width-1)
+      count += world->cells[y+1][x+1].alive? 1 : 0;
+  }
+
+  // left
+  if(x > 0)
+    count += world->cells[y][x-1].alive? 1 : 0;
+
+  // right
+  if(x < width-1)
+    count += world->cells[y][x+1].alive? 1 : 0;
+
+  return count;
+}
+
+// show debug information: neighbour count for all cells
+void show_neighbour_count(world_t *world) {
+  int i, j;
+  for(i = 0; i<height; i++) {
+    for(j = 0; j<width; j++) {
+      printf("neighbours of y(%i):x(%i) -> %i\n", i, j, neighbours(world, i, j));
+    }
+  }
+}
+
+
 int main(int argc, char *argv[]) {
   if(!optparse(argc, argv))
     exit(-1);
@@ -123,6 +175,7 @@ int main(int argc, char *argv[]) {
     randomize_world(&world);
   }
   print_world(&world);
+  show_neighbour_count(&world);
 
   return 0;
 }
