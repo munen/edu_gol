@@ -43,7 +43,7 @@ _Bool optparse(int argc, char *argv[]) {
           fprintf (stderr, "Unknown option character `\\x%x'.\n", optopt);
         return false;
       default:
-	abort();
+	exit(-1);
     }
 
   for (index = optind; index < argc; index++)

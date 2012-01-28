@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "optparse.h"
 
@@ -71,19 +72,57 @@ void print_world(world_t *world) {
   printf("↓\ny\n");
 }
 
+_Bool read_world(world_t *world, char *path) {
+  long file_size = 0;
+  FILE *fp;
+  char *input = NULL;
+
+  fp = fopen(path, "r");
+
+  // get filesize
+  fseek(fp, 0L, SEEK_END);
+  file_size = ftell(fp);
+  fseek(fp, 0L, SEEK_SET);
+
+  // read file
+  input = (char *)malloc(sizeof(char) * file_size);
+  fread(input, file_size, sizeof(char), fp);
+
+  // note: there is no syntax checking
+  width = strstr(input, "\n") - input;
+  // account newlines (+1)
+  height = (file_size) / (width + 1);
+
+  create_world(world);
+
+  int i, j, tmp = 0;
+  for(i = 0; i<height; i++) {
+    for(j = 0; j<width; j++) {
+      world->cells[i][j].alive = (input[tmp] == '*') ? true : false;
+      tmp += 1;
+    }
+    tmp += 1;
+  }
+
+  return true;
+}
 
 int main(int argc, char *argv[]) {
   if(!optparse(argc, argv))
-        abort();
+    exit(-1);
 
   world_t world;
 
-  if(!create_world(&world))
+  if(path)
+    read_world(&world, path);
+  else if (!create_world(&world)) {
     printf("error creating world\n");
+    exit(-2);
+  } 
   else {
     randomize_world(&world);
-    print_world(&world);
   }
-  
+  print_world(&world);
+
   return 0;
 }
