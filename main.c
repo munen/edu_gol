@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 #include "optparse.h"
 
@@ -158,6 +159,19 @@ void show_neighbour_count(world_t *world) {
   }
 }
 
+// calculate whether cell will be alive in next iteration
+_Bool next_tick_cell(world_t *world, int i, int j) {
+  cell_t cell = world->cells[i][j];
+
+  if(!cell.alive && (neighbours(world, i, j) == 3))
+    return true;
+  else if(cell.alive && ((neighbours(world, i, j) < 2) ||\
+      (neighbours(world, i, j) > 3)))
+    return false;
+
+  return cell.alive;
+}
+
 /*
  * evolve the world into the next iteration by the following rules:
  * 1. any live cell with fewer than two live neighbours dies, as if caused by
@@ -170,7 +184,7 @@ void show_neighbour_count(world_t *world) {
  *    if by reproduction.
  */
 void next_tick(world_t *world) {
-  int i, j, tmp;
+  int i, j;
 
   // clone current population for calculations
   for(i = 0; i<height; i++) {
@@ -179,29 +193,14 @@ void next_tick(world_t *world) {
     }
   }
 
+  // calculate next iteration for each cell
   for(i = 0; i<height; i++) {
     for(j = 0; j<width; j++) {
-      // rule #1
-      if(neighbours(world, i, j) < 2)
-        world->cells[i][j].alive_next_round = false;
-      // rule #2
-      if((tmp == 2) || (tmp == 3)) {
-        if(world->cells[i][j].alive)
-          world->cells[i][j].alive_next_round = true;
-      };
-      // rule #3
-      if(neighbours(world, i, j) > 3) {
-        world->cells[i][j].alive_next_round = false;
-      };
-      // rule #4
-      if(neighbours(world, i, j) == 3) {
-        if(!world->cells[i][j].alive)
-          world->cells[i][j].alive_next_round = true;
-      }
+      world->cells[i][j].alive_next_round = next_tick_cell(world, i, j);
     }
   }
 
-  // start new iteration
+  // write temporary results back into current world
   for(i = 0; i<height; i++) {
     for(j = 0; j<width; j++) {
       world->cells[i][j].alive = world->cells[i][j].alive_next_round;
