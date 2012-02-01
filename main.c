@@ -160,6 +160,7 @@ void show_neighbour_count(world_t *world) {
 }
 
 // calculate whether cell will be alive in next iteration
+// helper function for next_tick()
 _Bool next_tick_cell(world_t *world, int i, int j) {
   cell_t cell = world->cells[i][j];
 
