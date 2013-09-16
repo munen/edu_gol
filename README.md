@@ -1,7 +1,7 @@
 # Game of Life in C
 
 This project is meant as an educational piece of software. The development
-process is described step by step in [slides.pdf](https://github.com/preek/edu_gol/raw/master/slides.pdf). 
+process is described step by step in [slides.pdf](https://github.com/munen/edu_gol/raw/master/slides.pdf). 
 
 Start by reading the slides and try to implement the next step on your own. If
 you're stuck, there's help. This project is structed in branches - master only
